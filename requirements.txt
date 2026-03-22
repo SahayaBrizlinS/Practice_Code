@@ -4,3 +4,5 @@ openai-agents[viz]
 fastapi
 uvicorn[standard]
 openai-agents[redis]
+openai-agents[sqlalchemy]
+greenlet
