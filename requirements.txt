@@ -1,0 +1,6 @@
+openai-agents
+aiosqlite
+openai-agents[viz]
+fastapi
+uvicorn[standard]
+openai-agents[redis]
