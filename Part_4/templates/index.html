@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HITL Single Page</title>
+</head>
+<body>
+
+<h2>HITL Agent Demo</h2>
+
+<!-- 🔹 Input -->
+<input type="text" id="query" placeholder="Enter request">
+<button onclick="start()">Submit</button>
+
+<hr>
+
+<!-- 🔹 Approval Section -->
+<div id="approval" style="display:none;">
+    <h3>Approval Required</h3>
+    <p>Suggested Category: <span id="category"></span></p>
+
+    <button onclick="approve()">Approve</button>
+
+    <br><br>
+
+    <input type="text" id="editCategory" placeholder="Edit category">
+    <button onclick="edit()">Edit & Continue</button>
+
+    <br><br>
+
+    <button onclick="reject()">Reject</button>
+</div>
+
+<!-- 🔹 Result -->
+<div id="result"></div>
+
+<script>
+// ============================================================
+// 🔹 START REQUEST
+// ============================================================
+async function start() {
+    const query = document.getElementById("query").value;
+
+    if (!query) {
+        alert("Please enter a request");
+        return;
+    }
+
+    const res = await fetch("/start", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ query })
+    });
+
+    const data = await res.json();
+    handleResponse(data);
+}
+
+
+// ============================================================
+// 🔹 APPROVE
+// ============================================================
+async function approve() {
+    const res = await fetch("/approve", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ action: "approve" })
+    });
+
+    const data = await res.json();
+    handleResponse(data);
+}
+
+
+// ============================================================
+// 🔹 EDIT
+// ============================================================
+async function edit() {
+    const category = document.getElementById("editCategory").value;
+
+    if (!category) {
+        alert("Enter a category to edit");
+        return;
+    }
+
+    const res = await fetch("/approve", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            action: "edit",
+            category: category
+        })
+    });
+
+    const data = await res.json();
+    handleResponse(data);
+}
+
+
+// ============================================================
+// 🔹 REJECT
+// ============================================================
+async function reject() {
+    const res = await fetch("/approve", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ action: "reject" })
+    });
+
+    const data = await res.json();
+    handleResponse(data);
+}
+
+
+// ============================================================
+// 🔹 HANDLE RESPONSE (CORE LOGIC)
+// ============================================================
+function handleResponse(data) {
+
+    const approvalDiv = document.getElementById("approval");
+    const resultDiv = document.getElementById("result");
+
+    if (data.status === "approval") {
+        // Show approval UI
+        approvalDiv.style.display = "block";
+        resultDiv.innerText = "";
+
+        document.getElementById("category").innerText = data.category;
+
+    } else if (data.status === "done") {
+        // Show result
+        approvalDiv.style.display = "none";
+        resultDiv.innerText = data.output;
+
+    } else {
+        // Idle / fallback
+        approvalDiv.style.display = "none";
+        resultDiv.innerText = "No active session.";
+    }
+}
+
+
+// ============================================================
+// 🔹 AUTO RESUME AFTER RESTART
+// ============================================================
+window.onload = async function () {
+    try {
+        const res = await fetch("/resume");
+        const data = await res.json();
+
+        handleResponse(data);
+
+    } catch (err) {
+        console.error("Resume failed:", err);
+    }
+};
+
+</script>
+
+</body>
+</html>

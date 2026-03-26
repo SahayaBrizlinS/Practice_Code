@@ -1,0 +1,4 @@
+{
+  "delete_file:data.db": true,
+  "delete_file:try.db": true
+}

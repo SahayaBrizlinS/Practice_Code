@@ -6,3 +6,5 @@ uvicorn[standard]
 openai-agents[redis]
 openai-agents[sqlalchemy]
 greenlet
+flask
+openai-agents[voice]
